@@ -223,6 +223,186 @@
             margin-top: 15px;
             justify-content: center;
         }
+
+        /* Decoder section */
+        .decoder-section {
+            width: 100%;
+            max-width: 600px;
+            background: #16213e;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #0f3460;
+            margin-top: 20px;
+        }
+
+        .decoder-section h2 {
+            color: #00d4ff;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .signal-meter {
+            width: 100%;
+            height: 20px;
+            background: #0a0a1a;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 15px;
+            border: 1px solid #0f3460;
+        }
+
+        .signal-meter-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #00d4ff, #00ff88);
+            transition: width 0.05s;
+            border-radius: 10px;
+        }
+
+        .signal-meter-threshold {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 2px;
+            background: #e94560;
+            transition: left 0.1s;
+        }
+
+        .tone-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #333;
+            border: 2px solid #555;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 10px;
+            transition: background 0.05s, box-shadow 0.05s;
+        }
+
+        .tone-dot.active {
+            background: #ffdd00;
+            box-shadow: 0 0 15px #ffdd00, 0 0 30px #ffdd0066;
+            border-color: #ffdd00;
+        }
+
+        .morse-buffer {
+            display: inline-block;
+            font-family: monospace;
+            font-size: 1.5rem;
+            letter-spacing: 6px;
+            color: #e94560;
+            min-height: 30px;
+            vertical-align: middle;
+        }
+
+        .decoder-status-row {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .decoded-text {
+            width: 100%;
+            min-height: 60px;
+            background: #0a0a1a;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 1.1rem;
+            color: #00ff88;
+            border: 1px solid #0f3460;
+            word-wrap: break-word;
+            margin-bottom: 15px;
+        }
+
+        .decoded-text .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 1.1em;
+            background: #00ff88;
+            vertical-align: text-bottom;
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        .btn-listen {
+            background: #00d4ff;
+            color: #1a1a2e;
+        }
+
+        .btn-listen:hover {
+            background: #00b8d9;
+        }
+
+        .btn-listen.listening {
+            background: #e94560;
+            color: white;
+            animation: pulse-red 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-red {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(233, 69, 96, 0.4); }
+            50% { box-shadow: 0 0 15px 5px rgba(233, 69, 96, 0.4); }
+        }
+
+        .btn-clear {
+            background: #555;
+            color: white;
+        }
+
+        .btn-clear:hover {
+            background: #777;
+        }
+
+        .decoder-controls {
+            margin-bottom: 15px;
+        }
+
+        .decoder-controls .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .decoder-controls label {
+            white-space: nowrap;
+            font-weight: bold;
+            min-width: 80px;
+        }
+
+        .decoder-controls input[type="range"] {
+            flex: 1;
+            accent-color: #00d4ff;
+            height: 6px;
+        }
+
+        .decoder-controls .speed-value {
+            min-width: 60px;
+            text-align: right;
+            color: #00d4ff;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        .debug-readout {
+            font-family: monospace;
+            font-size: 0.7rem;
+            color: #666;
+            text-align: center;
+            margin-bottom: 10px;
+            min-height: 1.2em;
+        }
+
+        .decoder-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
     </style>
 </head>
 <body>
@@ -250,6 +430,31 @@
         </div>
         <div class="button-row">
             <button class="btn btn-stop" id="stopBtn">Stop</button>
+        </div>
+    </div>
+
+    <div class="decoder-section">
+        <h2>Morse Code Decoder</h2>
+        <div class="decoder-controls">
+            <div class="speed-control">
+                <label>Sensitivity:</label>
+                <input type="range" id="sensitivitySlider" min="1" max="100" value="50">
+                <span class="speed-value" id="sensitivityValue">50</span>
+            </div>
+        </div>
+        <div class="signal-meter">
+            <div class="signal-meter-fill" id="signalFill"></div>
+            <div class="signal-meter-threshold" id="signalThreshold" style="left: 50%"></div>
+        </div>
+        <div class="debug-readout" id="debugReadout">&nbsp;</div>
+        <div class="decoder-status-row">
+            <span class="tone-dot" id="toneDot"></span>
+            <span class="morse-buffer" id="morseBuffer">&nbsp;</span>
+        </div>
+        <div class="decoded-text" id="decodedText"><span class="cursor"></span></div>
+        <div class="decoder-buttons">
+            <button class="btn btn-listen" id="listenBtn">Start Listening</button>
+            <button class="btn btn-clear" id="clearBtn">Clear</button>
         </div>
     </div>
 
@@ -448,6 +653,367 @@
         });
 
         buildGrid();
+
+        // === Morse Code Decoder ===
+
+        // Reverse lookup: morse pattern -> character
+        const MORSE_REVERSE = {};
+        for (const [char, pattern] of Object.entries(MORSE_CODE)) {
+            MORSE_REVERSE[pattern] = char;
+        }
+
+        // Decoder state
+        const decoder = {
+            listening: false,
+            micStream: null,
+            analyser: null,
+            pollInterval: null,
+            timeDomainData: null,
+
+            // Goertzel params for 700 Hz
+            goertzelParams: null,
+
+            // Tone detection state
+            toneOn: false,
+            toneOnTime: 0,
+            toneOffTime: 0,
+            hysteresisCount: 0,
+            hysteresisTarget: 2,
+
+            // Adaptive threshold
+            noiseFloor: 0.0001,
+            signalPeak: 0.001,
+            threshold: 0.0003,
+
+            // Adaptive timing — learns dot/dash durations from input
+            recentDurations: [],  // last N tone durations
+            adaptiveUnit: null,   // estimated dot duration in ms
+
+            // Morse decoding
+            morseBuffer: '',
+            decodedText: '',
+        };
+
+        function initGoertzelParams(sampleRate, freq) {
+            // Use ~30ms of audio (~21 cycles at 700Hz) for stable frequency detection
+            const N = Math.round(sampleRate * 0.03);
+            const k = Math.round(N * freq / sampleRate);
+            const w = (2 * Math.PI * k) / N;
+            const coeff = 2 * Math.cos(w);
+            return { N, coeff };
+        }
+
+        function computeGoertzel(samples, offset, N, coeff) {
+            let s0 = 0, s1 = 0, s2 = 0;
+            const end = Math.min(offset + N, samples.length);
+            for (let i = offset; i < end; i++) {
+                s0 = samples[i] + coeff * s1 - s2;
+                s2 = s1;
+                s1 = s0;
+            }
+            // Magnitude squared, normalized by N^2
+            return (s1 * s1 + s2 * s2 - coeff * s1 * s2) / (N * N);
+        }
+
+        // Average Goertzel magnitude over multiple windows in the buffer
+        function computeAverageMagnitude(samples, N, coeff) {
+            const numWindows = Math.floor(samples.length / N);
+            if (numWindows === 0) return computeGoertzel(samples, 0, N, coeff);
+            let total = 0;
+            for (let w = 0; w < numWindows; w++) {
+                total += computeGoertzel(samples, w * N, N, coeff);
+            }
+            return total / numWindows;
+        }
+
+        // Adaptive timing: estimate dot unit from recent tone durations
+        function updateAdaptiveTiming(duration) {
+            decoder.recentDurations.push(duration);
+            if (decoder.recentDurations.length > 30) {
+                decoder.recentDurations.shift();
+            }
+            if (decoder.recentDurations.length < 2) return;
+
+            // Find the natural gap between dots and dashes by looking for
+            // the largest relative jump between consecutive sorted durations
+            const sorted = [...decoder.recentDurations].sort((a, b) => a - b);
+
+            let bestGapIdx = 0;
+            let bestGapRatio = 0;
+            for (let i = 0; i < sorted.length - 1; i++) {
+                const ratio = sorted[i + 1] / sorted[i];
+                if (ratio > bestGapRatio) {
+                    bestGapRatio = ratio;
+                    bestGapIdx = i;
+                }
+            }
+
+            // Only split if there's a meaningful gap (ratio > 1.5 suggests
+            // two distinct clusters like dots vs dashes)
+            if (bestGapRatio > 1.5) {
+                const shorts = sorted.slice(0, bestGapIdx + 1);
+                const avgShort = shorts.reduce((a, b) => a + b, 0) / shorts.length;
+                decoder.adaptiveUnit = avgShort;
+            } else {
+                // All durations are similar — treat them all as dots
+                const avg = sorted.reduce((a, b) => a + b, 0) / sorted.length;
+                decoder.adaptiveUnit = avg;
+            }
+        }
+
+        function getDecoderUnit() {
+            // Use adaptive timing if available, otherwise fall back to WPM slider
+            if (decoder.adaptiveUnit && decoder.recentDurations.length >= 3) {
+                return decoder.adaptiveUnit;
+            }
+            return getUnitDuration();
+        }
+
+        function startListening() {
+            if (decoder.listening) return;
+
+            const ctx = getAudioContext();
+
+            navigator.mediaDevices.getUserMedia({
+                audio: {
+                    echoCancellation: false,
+                    noiseSuppression: false,
+                    autoGainControl: false
+                }
+            }).then(stream => {
+                decoder.micStream = stream;
+                decoder.listening = true;
+
+                const source = ctx.createMediaStreamSource(stream);
+                decoder.analyser = ctx.createAnalyser();
+                decoder.analyser.fftSize = 2048;
+                source.connect(decoder.analyser);
+
+                // Init Goertzel for 700 Hz
+                decoder.goertzelParams = initGoertzelParams(ctx.sampleRate, 700);
+
+                decoder.timeDomainData = new Float32Array(decoder.analyser.fftSize);
+
+                // Reset state
+                decoder.toneOn = false;
+                decoder.hysteresisCount = 0;
+                decoder.morseBuffer = '';
+                decoder.noiseFloor = 0.0001;
+                decoder.signalPeak = 0.001;
+                decoder.threshold = 0.0003;
+                decoder.recentDurations = [];
+                decoder.adaptiveUnit = null;
+
+                // Update UI
+                const btn = document.getElementById('listenBtn');
+                btn.textContent = 'Stop Listening';
+                btn.classList.add('listening');
+
+                decoder.pollInterval = setInterval(pollDecoder, 16);
+            }).catch(err => {
+                console.error('Microphone access denied:', err);
+            });
+        }
+
+        function stopListening() {
+            if (!decoder.listening) return;
+            decoder.listening = false;
+
+            clearInterval(decoder.pollInterval);
+            decoder.pollInterval = null;
+
+            // Flush pending character
+            if (decoder.morseBuffer.length > 0) {
+                finishCurrentCharacter();
+            }
+
+            // Stop mic
+            if (decoder.micStream) {
+                decoder.micStream.getTracks().forEach(t => t.stop());
+                decoder.micStream = null;
+            }
+            decoder.analyser = null;
+
+            // Update UI
+            const btn = document.getElementById('listenBtn');
+            btn.textContent = 'Start Listening';
+            btn.classList.remove('listening');
+
+            document.getElementById('toneDot').classList.remove('active');
+        }
+
+        function pollDecoder() {
+            if (!decoder.analyser) return;
+
+            // Use float data for better precision
+            decoder.analyser.getFloatTimeDomainData(decoder.timeDomainData);
+            const samples = decoder.timeDomainData;
+
+            // Run Goertzel at 700 Hz, averaged over multiple windows
+            const { N, coeff } = decoder.goertzelParams;
+            const maxMag = computeAverageMagnitude(samples, N, coeff);
+
+            // Adaptive threshold with exponential smoothing
+            // Use two separate trackers: fast noise floor, slow signal peak
+            const noiseSmoothUp = 0.05;
+            const noiseSmoothDown = 0.01;
+            const signalSmooth = 0.1;
+
+            if (maxMag > decoder.signalPeak) {
+                // New signal peak — track quickly
+                decoder.signalPeak = decoder.signalPeak * (1 - signalSmooth) + maxMag * signalSmooth;
+            } else {
+                // Decay signal peak slowly
+                decoder.signalPeak *= 0.999;
+            }
+
+            if (maxMag < decoder.noiseFloor) {
+                // Noise floor dropping — follow quickly
+                decoder.noiseFloor = decoder.noiseFloor * (1 - noiseSmoothUp) + maxMag * noiseSmoothUp;
+            } else if (maxMag < decoder.threshold) {
+                // Below threshold but above floor — update slowly
+                decoder.noiseFloor = decoder.noiseFloor * (1 - noiseSmoothDown) + maxMag * noiseSmoothDown;
+            }
+
+            // Ensure minimum separation
+            if (decoder.signalPeak < decoder.noiseFloor * 4) {
+                decoder.signalPeak = decoder.noiseFloor * 4;
+            }
+
+            // Geometric mean threshold, scaled by sensitivity slider
+            // Slider 1 (most sensitive) → lower threshold, slider 100 → higher threshold
+            const sensitivity = parseInt(document.getElementById('sensitivitySlider').value);
+            const sensitivityMultiplier = Math.pow(10, (sensitivity - 50) / 50);
+            const baseThreshold = Math.sqrt(decoder.noiseFloor * decoder.signalPeak);
+            decoder.threshold = baseThreshold * sensitivityMultiplier;
+
+            // Update signal meter UI
+            const meterMax = Math.max(decoder.signalPeak * 3, decoder.threshold * 3, 0.001);
+            const fillPct = Math.min(100, (maxMag / meterMax) * 100);
+            const threshPct = Math.min(100, (decoder.threshold / meterMax) * 100);
+            document.getElementById('signalFill').style.width = fillPct + '%';
+            document.getElementById('signalThreshold').style.left = threshPct + '%';
+
+            // Debug readout
+            const unitInfo = decoder.adaptiveUnit ? `unit: ${Math.round(decoder.adaptiveUnit)}ms` : 'unit: learning...';
+            document.getElementById('debugReadout').textContent =
+                `signal: ${maxMag.toExponential(2)} | thresh: ${decoder.threshold.toExponential(2)} | ${unitInfo}`;
+
+            // Hysteresis-based tone detection
+            const now = performance.now();
+            const detected = maxMag > decoder.threshold;
+
+            if (detected !== decoder.toneOn) {
+                decoder.hysteresisCount++;
+                if (decoder.hysteresisCount >= decoder.hysteresisTarget) {
+                    decoder.hysteresisCount = 0;
+
+                    if (detected) {
+                        // Tone just turned ON
+                        decoder.toneOn = true;
+                        decoder.toneOnTime = now;
+                        document.getElementById('toneDot').classList.add('active');
+
+                        // Check for character/word gap
+                        if (decoder.toneOffTime > 0 && decoder.morseBuffer.length > 0) {
+                            const silenceDuration = now - decoder.toneOffTime;
+                            const unit = getDecoderUnit();
+
+                            if (silenceDuration > unit * 5) {
+                                // Word gap
+                                finishCurrentCharacter();
+                                decoder.decodedText += ' ';
+                                updateDecodedText();
+                            } else if (silenceDuration > unit * 2) {
+                                // Character gap
+                                finishCurrentCharacter();
+                            }
+                        }
+                    } else {
+                        // Tone just turned OFF
+                        decoder.toneOn = false;
+                        decoder.toneOffTime = now;
+                        document.getElementById('toneDot').classList.remove('active');
+
+                        const toneDuration = now - decoder.toneOnTime;
+
+                        // Classify dot or dash BEFORE updating adaptive timing
+                        // so the current tone doesn't corrupt its own classification
+                        const unit = getDecoderUnit();
+                        const dotDashThreshold = unit * 2;
+
+                        if (toneDuration < dotDashThreshold) {
+                            decoder.morseBuffer += '.';
+                        } else {
+                            decoder.morseBuffer += '-';
+                        }
+                        updateMorseBuffer();
+
+                        // Now update adaptive timing with this duration
+                        updateAdaptiveTiming(toneDuration);
+                    }
+                }
+            } else {
+                decoder.hysteresisCount = 0;
+            }
+
+            // Auto-finish character after long silence while not in tone
+            if (!decoder.toneOn && decoder.morseBuffer.length > 0 && decoder.toneOffTime > 0) {
+                const silenceSinceLast = now - decoder.toneOffTime;
+                const unit = getDecoderUnit();
+                if (silenceSinceLast > unit * 3) {
+                    finishCurrentCharacter();
+                }
+            }
+        }
+
+        function finishCurrentCharacter() {
+            if (decoder.morseBuffer.length === 0) return;
+
+            const char = MORSE_REVERSE[decoder.morseBuffer];
+            if (char) {
+                decoder.decodedText += char;
+            } else {
+                decoder.decodedText += '?';
+            }
+            decoder.morseBuffer = '';
+            updateMorseBuffer();
+            updateDecodedText();
+        }
+
+        function updateMorseBuffer() {
+            const el = document.getElementById('morseBuffer');
+            el.textContent = decoder.morseBuffer || '\u00A0';
+        }
+
+        function updateDecodedText() {
+            const el = document.getElementById('decodedText');
+            el.innerHTML = '';
+            el.appendChild(document.createTextNode(decoder.decodedText));
+            const cursor = document.createElement('span');
+            cursor.className = 'cursor';
+            el.appendChild(cursor);
+        }
+
+        // Decoder event listeners
+        document.getElementById('listenBtn').addEventListener('click', () => {
+            if (decoder.listening) {
+                stopListening();
+            } else {
+                startListening();
+            }
+        });
+
+        document.getElementById('sensitivitySlider').addEventListener('input', (e) => {
+            document.getElementById('sensitivityValue').textContent = e.target.value;
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            decoder.decodedText = '';
+            decoder.morseBuffer = '';
+            updateDecodedText();
+            updateMorseBuffer();
+        });
     </script>
 </body>
 </html>
